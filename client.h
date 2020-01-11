@@ -1,1 +1,2 @@
-void init_winsock();
+void startclient();
+void sendtocnc(char* buf);

