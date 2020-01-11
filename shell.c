@@ -1,33 +1,40 @@
 #include <Windows.h>
 #include <stdio.h>
 
+#define CMD_PATH "C:\\Windows\\System32\\cmd.exe"
+#define BUFFSIZE 256
+
 HANDLE out_rd = NULL;
 HANDLE out_wr = NULL;
 
-char* ReadFromPipe() {
+void readpipe() {
   int bufsize = 4096;
-  char buf[bufsize];
+  char* buf = malloc(bufsize);
   DWORD dwRead;
   BOOL bSuccess = FALSE;
 
-  while (1) {
-    bSuccess = ReadFile(out_rd, buf, bufsize, &dwRead, NULL);
-    if (!bSuccess || dwRead == 0) break;
-  }
-  return buf;
+  bSuccess = ReadFile(out_rd, buf, bufsize, &dwRead, NULL);
+  printf("Buffer: %s\n", buf);
+  CloseHandle(out_rd);
 }
 
 char* run(char* cmd) {
   int res;
-  char* cli_cmd = "/c ";
+  char cli_cmd[BUFFSIZE] = "/c ";
+  strncat(cli_cmd, cmd, BUFFSIZE);
+  SECURITY_ATTRIBUTES secattr = {.bInheritHandle = TRUE};
+  res = CreatePipe(&out_rd, &out_wr, &secattr, 0);
+  if (res == 0) {
+    printf("CreatePipe failed: %d\n", GetLastError());
+    exit(1);
+  }
+
   PROCESS_INFORMATION procinfo;
-  SECURITY_ATTRIBUTES secattr;
-
-  CreatePipe(&out_rd, &out_wr, &secattr, 0);
-  STARTUPINFO startupinfo = {.hStdOutput = out_wr, .hStdError = out_wr};
-
-  strcat(cli_cmd, cmd);
-  res = CreateProcessA("cmd.exe", cli_cmd, NULL, NULL, FALSE, CREATE_NO_WINDOW,
+  ZeroMemory(&procinfo, sizeof(PROCESS_INFORMATION));
+  STARTUPINFO startupinfo = {.hStdOutput = out_wr,
+                             .hStdError = out_wr,
+                             .dwFlags = STARTF_USESTDHANDLES};
+  res = CreateProcessA(CMD_PATH, cli_cmd, NULL, NULL, TRUE, CREATE_NO_WINDOW,
                        NULL, "C:\\", &startupinfo, &procinfo);
   if (res == 0) {
     printf("CreateProcess failed: %d\n", GetLastError());
@@ -35,6 +42,7 @@ char* run(char* cmd) {
   } else {
     CloseHandle(procinfo.hProcess);
     CloseHandle(procinfo.hThread);
-    return ReadFromPipe();
+    CloseHandle(out_wr);
+    readpipe();
   }
 }
