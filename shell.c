@@ -7,15 +7,13 @@
 HANDLE out_rd = NULL;
 HANDLE out_wr = NULL;
 
-void readpipe() {
+char* readpipe() {
   int bufsize = 4096;
   char* buf = malloc(bufsize);
   DWORD dwRead;
-  BOOL bSuccess = FALSE;
-
-  bSuccess = ReadFile(out_rd, buf, bufsize, &dwRead, NULL);
-  printf("Buffer: %s\n", buf);
+  ReadFile(out_rd, buf, bufsize, &dwRead, NULL);
   CloseHandle(out_rd);
+  return buf;
 }
 
 char* run(char* cmd) {

@@ -4,5 +4,7 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPTSTR lpCmdLine,
                    int nShowCmd) {
-  run("hostname");
+  char* res = run("whoami");
+  printf("%s", res);
+  free(res);
 }
