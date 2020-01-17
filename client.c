@@ -5,8 +5,8 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-const char *cnc_host = "127.0.0.1";
-const char *cnc_port = "26016";
+#define CNC_HOST "127.0.0.1"
+#define CNC_PORT "26016"
 
 SOCKET *cnc = NULL;
 
@@ -25,7 +25,7 @@ struct addrinfo getcncinfo() {
   struct addrinfo *result = NULL, hints = {.ai_family = AF_UNSPEC,
                                            .ai_socktype = SOCK_STREAM,
                                            .ai_protocol = IPPROTO_TCP};
-  res = getaddrinfo(cnc_host, cnc_port, &hints, &result);
+  res = getaddrinfo(CNC_HOST, CNC_PORT, &hints, &result);
   if (res != 0) {
     printf("getaddrinfo failed: %d\n", res);
     WSACleanup();
