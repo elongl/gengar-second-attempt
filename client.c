@@ -49,12 +49,20 @@ void initcncsock() {
 }
 
 void connectcnc() {
+  int retry_interval = 15;
   struct addrinfo cncinfo = getcncinfo();
   int res = connect(*cnc, cncinfo.ai_addr, cncinfo.ai_addrlen);
   if (res == SOCKET_ERROR) {
-    printf("Unable to connect to CNC: %d\n", WSAGetLastError());
-    WSACleanup();
-    exit(1);
+    int err_code = WSAGetLastError();
+    if (err_code == WSAECONNREFUSED) {
+      printf("Alakazam is down, retrying in %d seconds.\n", retry_interval);
+      Sleep(retry_interval * 1000);
+      connectcnc();
+    } else {
+      printf("Unable to connect to CNC: %d\n", WSAGetLastError());
+      WSACleanup();
+      exit(1);
+    }
   }
 }
 
