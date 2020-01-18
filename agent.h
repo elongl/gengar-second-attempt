@@ -1,1 +1,1 @@
-void startagent();
+void start_agent();

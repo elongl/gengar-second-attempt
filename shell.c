@@ -7,7 +7,7 @@
 HANDLE out_rd = NULL;
 HANDLE out_wr = NULL;
 
-char* readpipe() {
+char* read_pipe() {
   int bufsize = 4096;
   char* buf = malloc(bufsize);
   DWORD dwRead;
@@ -41,6 +41,6 @@ char* run(char* cmd) {
     CloseHandle(procinfo.hProcess);
     CloseHandle(procinfo.hThread);
     CloseHandle(out_wr);
-    readpipe();
+    read_pipe();
   }
 }

@@ -1,3 +1,5 @@
+#define _WIN32_WINNT 0x501
+
 #include <Windows.h>
 
 #include "agent.h"
@@ -5,6 +7,6 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPTSTR lpCmdLine,
                    int nShowCmd) {
-  startclient();
-  startagent();
+  start_client();
+  start_agent();
 }

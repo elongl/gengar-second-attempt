@@ -1,3 +1,3 @@
-void startclient();
-void sendtocnc(char* buf);
-char* recvfromcnc(int bufsize);
+void start_client();
+void send_to_cnc(char* buf);
+char* recv_from_cnc(int bufsize);

