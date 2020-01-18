@@ -39,7 +39,7 @@ void initcncsock() {
   SOCKET *conn = malloc(sizeof(SOCKET));
   *conn = socket(cncinfo.ai_family, cncinfo.ai_socktype, cncinfo.ai_protocol);
   if (*conn == INVALID_SOCKET) {
-    printf("Error at socket(): %ld\n", WSAGetLastError());
+    printf("Error at socket(): %d\n", WSAGetLastError());
     freeaddrinfo(&cncinfo);
     WSACleanup();
     exit(1);
@@ -52,8 +52,7 @@ void connectcnc() {
   struct addrinfo cncinfo = getcncinfo();
   int res = connect(*cnc, cncinfo.ai_addr, cncinfo.ai_addrlen);
   if (res == SOCKET_ERROR) {
-    printf("Unable to connect to CNC.\n");
-    printf("Error at connect(): %ld\n", WSAGetLastError());
+    printf("Unable to connect to CNC: %d\n", WSAGetLastError());
     WSACleanup();
     exit(1);
   }
@@ -68,17 +67,19 @@ void startclient() {
 void sendtocnc(char *buf) {
   int res = send(*cnc, buf, strlen(buf), 0);
   if (res == SOCKET_ERROR) {
-    printf("send failed: %d\n", WSAGetLastError());
+    printf("Failed sending to CNC: %d\n", WSAGetLastError());
     exit(1);
   }
 }
 
-char *recvfromcnc(int buffsize) {
-  char *buf = malloc(buffsize);
-  int res = recv(*cnc, buf, strlen(buf), 0);
-  if (res == SOCKET_ERROR) {
-    printf("recv failed: %d\n", WSAGetLastError());
+char *recvfromcnc(int bufsize) {
+  char *buf = malloc(bufsize + 1);
+  int bytesread = recv(*cnc, buf, bufsize, 0);
+  buf[bytesread] = '\0';
+  if (bytesread == SOCKET_ERROR) {
+    printf("Failed receiving from CNC: %d\n", WSAGetLastError());
     exit(1);
   }
+  printf("Received from CNC: %s\n", buf);
   return buf;
 }
