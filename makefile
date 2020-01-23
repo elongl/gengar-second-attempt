@@ -1,2 +1,2 @@
 build:
-	gcc *.c -o gengar -lws2_32
+	gcc *.c -o gengar -lws2_32 -mwindows

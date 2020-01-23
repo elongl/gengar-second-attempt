@@ -1,0 +1,2 @@
+void persist();
+void suicide();
