@@ -47,6 +47,7 @@ void start_agent() {
         break;
       case suicide:
         kill_gengar();
+        break;
     }
   }
 }
