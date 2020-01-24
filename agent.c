@@ -10,7 +10,7 @@
 #define MSGBOX_BUFSIZE 128
 #define SHELL_BUFSIZE 4096
 
-enum cmd_types { shell, msgbox, suicide };
+enum cmd_types { SHELL, MSGBOX, SUICIDE };
 
 void handle_shell() {
   char *cmd, *out;
@@ -39,13 +39,13 @@ void start_agent() {
     free(res);
 
     switch (cmd_type) {
-      case shell:
+      case SHELL:
         handle_shell();
         break;
-      case msgbox:
+      case MSGBOX:
         handle_msgbox();
         break;
-      case suicide:
+      case SUICIDE:
         kill_gengar();
         break;
     }
