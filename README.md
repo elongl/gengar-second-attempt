@@ -13,7 +13,5 @@
 - Screenshot
 - Run on startup
 - Popping MessageBox
-- Changing desktop background
-- Locking the workstation
 
 Open the `Projects` tab for the development board.
