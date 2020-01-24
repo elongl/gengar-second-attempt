@@ -4,7 +4,7 @@
 #include <ws2tcpip.h>
 
 #define CNC_HOST "127.0.0.1"
-#define CNC_PORT "26016"
+#define CNC_PORT "27016"
 
 #define RETRY_INTERVAL 15
 
